@@ -44,4 +44,9 @@ public class LinearClassifier implements Classifier {
     }
     return -1;
   }
+
+  @Override
+  public int fragmentCount() {
+    return ranges.size();
+  }
 }

@@ -37,6 +37,16 @@ public record IntRange(int lo, int hi) implements Comparable<IntRange> {
     return lo <= c && c <= hi;
   }
 
+  /**
+   * Returns {@code true} if this range and {@code other} share at least one integer.
+   *
+   * @param other the range to test against
+   * @return whether the two ranges overlap
+   */
+  public boolean overlaps(IntRange other) {
+    return lo <= other.hi && other.lo <= hi;
+  }
+
   @Override
   public int compareTo(IntRange o) {
     if (lo == o.lo) {

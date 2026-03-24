@@ -45,6 +45,13 @@ class ExpressionConverterTest {
     return current.stream().anyMatch(State::isAccepting);
   }
 
+  // --- Null checks ---
+
+  @Test
+  void build_nullExpression_throwsNpe() {
+    assertThrows(NullPointerException.class, () -> ExpressionConverter.build(null, "TOKEN"));
+  }
+
   // --- Unit ---
 
   @Test

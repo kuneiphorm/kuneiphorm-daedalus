@@ -75,6 +75,100 @@ class AutomatonTest {
     assertThrows(UnsupportedOperationException.class, () -> a.getStates().clear());
   }
 
+  // --- isDeterministic ---
+
+  @Test
+  void isDeterministic_noTransitions_returnsTrue() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    assertTrue(a.isDeterministic());
+  }
+
+  @Test
+  void isDeterministic_distinctLabels_returnsTrue() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState();
+    q0.addTransition(1, q1);
+    q0.addTransition(2, q1);
+    assertTrue(a.isDeterministic());
+  }
+
+  @Test
+  void isDeterministic_epsilonTransition_returnsFalse() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState();
+    q0.addEpsilonTransition(q1);
+    assertFalse(a.isDeterministic());
+  }
+
+  @Test
+  void isDeterministic_duplicateLabel_returnsFalse() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState();
+    var q2 = a.newState();
+    q0.addTransition(1, q1);
+    q0.addTransition(1, q2);
+    assertFalse(a.isDeterministic());
+  }
+
+  @Test
+  void isDeterministic_empty_returnsTrue() {
+    var a = Automaton.<String, Integer>create();
+    assertTrue(a.isDeterministic());
+  }
+
+  // --- stateCount ---
+
+  @Test
+  void stateCount_empty_returnsZero() {
+    var a = Automaton.<String, Integer>create();
+    assertEquals(0, a.stateCount());
+  }
+
+  @Test
+  void stateCount_afterCreation_returnsCount() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    a.newState();
+    a.newState();
+    assertEquals(3, a.stateCount());
+  }
+
+  // --- getAcceptingStates ---
+
+  @Test
+  void getAcceptingStates_noAccepting_returnsEmpty() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    a.newState();
+    assertTrue(a.getAcceptingStates().isEmpty());
+  }
+
+  @Test
+  void getAcceptingStates_returnsOnlyAccepting() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    var q1 = a.newState("A");
+    a.newState();
+    var q3 = a.newState("B");
+    var accepting = a.getAcceptingStates();
+    assertEquals(2, accepting.size());
+    assertSame(q1, accepting.get(0));
+    assertSame(q3, accepting.get(1));
+  }
+
+  @Test
+  void getAcceptingStates_isUnmodifiable() {
+    var a = Automaton.<String, Integer>create();
+    a.newState("TOKEN");
+    assertThrows(UnsupportedOperationException.class, () -> a.getAcceptingStates().clear());
+  }
+
+  // --- toString ---
+
   @Test
   void toString_noStates() {
     var a = Automaton.<String, Integer>create();

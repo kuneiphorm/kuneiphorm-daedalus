@@ -53,6 +53,55 @@ class IntRangeTest {
     assertFalse(new IntRange(3, 7).contains(8));
   }
 
+  // --- overlaps ---
+
+  @Test
+  void overlaps_disjointBefore_returnsFalse() {
+    assertFalse(new IntRange(1, 3).overlaps(new IntRange(5, 7)));
+  }
+
+  @Test
+  void overlaps_disjointAfter_returnsFalse() {
+    assertFalse(new IntRange(5, 7).overlaps(new IntRange(1, 3)));
+  }
+
+  @Test
+  void overlaps_adjacent_returnsFalse() {
+    assertFalse(new IntRange(1, 3).overlaps(new IntRange(4, 7)));
+  }
+
+  @Test
+  void overlaps_touchingAtHi_returnsTrue() {
+    assertTrue(new IntRange(1, 4).overlaps(new IntRange(4, 7)));
+  }
+
+  @Test
+  void overlaps_touchingAtLo_returnsTrue() {
+    assertTrue(new IntRange(4, 7).overlaps(new IntRange(1, 4)));
+  }
+
+  @Test
+  void overlaps_partial_returnsTrue() {
+    assertTrue(new IntRange(1, 5).overlaps(new IntRange(3, 7)));
+  }
+
+  @Test
+  void overlaps_nested_returnsTrue() {
+    assertTrue(new IntRange(1, 10).overlaps(new IntRange(3, 7)));
+  }
+
+  @Test
+  void overlaps_identical_returnsTrue() {
+    assertTrue(new IntRange(3, 7).overlaps(new IntRange(3, 7)));
+  }
+
+  @Test
+  void overlaps_symmetric() {
+    IntRange a = new IntRange(1, 5);
+    IntRange b = new IntRange(3, 7);
+    assertEquals(a.overlaps(b), b.overlaps(a));
+  }
+
   // --- compareTo ---
 
   @Test

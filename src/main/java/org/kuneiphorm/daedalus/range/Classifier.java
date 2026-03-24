@@ -8,7 +8,6 @@ package org.kuneiphorm.daedalus.range;
  * @author Florent Guille
  * @since 0.1.0
  */
-@FunctionalInterface
 public interface Classifier {
 
   /**
@@ -18,4 +17,13 @@ public interface Classifier {
    * @return the class ID, or {@code -1}
    */
   int classify(int c);
+
+  /**
+   * Returns the total number of equivalence classes (fragments) known to this classifier.
+   *
+   * <p>Fragment IDs are in the range {@code [0, fragmentCount())}.
+   *
+   * @return the number of fragments
+   */
+  int fragmentCount();
 }

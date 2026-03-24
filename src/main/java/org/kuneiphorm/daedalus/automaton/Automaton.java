@@ -3,6 +3,7 @@ package org.kuneiphorm.daedalus.automaton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A finite automaton with generic state output labels and transition labels.
@@ -99,6 +100,48 @@ public class Automaton<S, L> {
     State<S, L> state = new State<>(states.size(), output);
     states.add(state);
     return state;
+  }
+
+  /**
+   * Returns the number of states in this automaton.
+   *
+   * @return the state count
+   */
+  public int stateCount() {
+    return states.size();
+  }
+
+  /**
+   * Returns an unmodifiable list of all accepting states (states whose output is non-null).
+   *
+   * @return the list of accepting states, in creation order
+   */
+  public List<State<S, L>> getAcceptingStates() {
+    return states.stream().filter(State::isAccepting).collect(Collectors.toUnmodifiableList());
+  }
+
+  /**
+   * Returns {@code true} if this automaton is deterministic: no epsilon transitions and no state
+   * has two transitions with the same label.
+   *
+   * @return whether this automaton is a DFA
+   */
+  public boolean isDeterministic() {
+    for (State<S, L> state : states) {
+      List<Transition<S, L>> transitions = state.getTransitions();
+      for (int i = 0; i < transitions.size(); i++) {
+        Transition<S, L> ti = transitions.get(i);
+        if (ti.isEpsilon()) {
+          return false;
+        }
+        for (int j = i + 1; j < transitions.size(); j++) {
+          if (ti.label().equals(transitions.get(j).label())) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 
   /**

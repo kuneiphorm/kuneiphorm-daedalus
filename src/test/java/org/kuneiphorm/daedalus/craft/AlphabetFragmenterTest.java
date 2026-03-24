@@ -41,6 +41,13 @@ class AlphabetFragmenterTest {
     return current.isAccepting();
   }
 
+  // --- Null checks ---
+
+  @Test
+  void fragment_nullDfa_throwsNpe() {
+    assertThrows(NullPointerException.class, () -> AlphabetFragmenter.fragment(null));
+  }
+
   // --- Classifier correctness ---
 
   @Test
@@ -184,7 +191,7 @@ class AlphabetFragmenterTest {
 
   @Test
   void fragment_sameTransitionBehavior_sharedFragmentId() {
-    // [a-z] — all characters in range go to same target from same source.
+    // [a-z] -- all characters in range go to same target from same source.
     // After fragmentation, they should share a single fragment ID.
     FragmentedAutomaton<String> fa = buildFragmented(Expression.unit(new IntRange(97, 122)));
     int fragA = fa.classifier().classify(97);

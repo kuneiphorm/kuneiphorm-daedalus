@@ -18,6 +18,7 @@ import java.util.List;
 public class TableClassifier implements Classifier {
 
   private final int[] table;
+  private final int fragmentCount;
 
   /**
    * Constructs a table classifier covering character codes {@code 0} to {@code tableSize - 1}.
@@ -30,6 +31,7 @@ public class TableClassifier implements Classifier {
    */
   public TableClassifier(List<IntRange> ranges, int tableSize) {
     this.table = new int[tableSize];
+    this.fragmentCount = ranges.size();
     Arrays.fill(this.table, -1);
     for (int i = 0; i < ranges.size(); i++) {
       IntRange range = ranges.get(i);
@@ -47,5 +49,10 @@ public class TableClassifier implements Classifier {
   public int classify(int c) {
     if (c < 0 || c >= table.length) return -1;
     return table[c];
+  }
+
+  @Override
+  public int fragmentCount() {
+    return fragmentCount;
   }
 }

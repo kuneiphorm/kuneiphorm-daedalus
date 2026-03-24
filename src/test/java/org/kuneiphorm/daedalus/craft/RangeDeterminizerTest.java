@@ -38,6 +38,21 @@ class RangeDeterminizerTest {
     return RangeDeterminizer.determinize(nfa, Map.of());
   }
 
+  // --- Null checks ---
+
+  @Test
+  void determinize_nullNfa_throwsNpe() {
+    assertThrows(NullPointerException.class, () -> RangeDeterminizer.determinize(null, Map.of()));
+  }
+
+  @Test
+  void determinize_nullPriority_throwsNpe() {
+    var nfa = Automaton.<String, IntRange>create();
+    nfa.newState();
+    nfa.setInitialStateId(0);
+    assertThrows(NullPointerException.class, () -> RangeDeterminizer.determinize(nfa, null));
+  }
+
   // --- Single range ---
 
   @Test

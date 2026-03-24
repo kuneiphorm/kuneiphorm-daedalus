@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.kuneiphorm.daedalus.automaton.Automaton;
+import org.kuneiphorm.daedalus.automaton.State;
 import org.kuneiphorm.daedalus.core.Expression;
 
 class TrimmerTest {
@@ -28,6 +29,37 @@ class TrimmerTest {
       current = next;
     }
     return current.isAccepting();
+  }
+
+  // --- Null checks ---
+
+  @Test
+  void trim_nullDfa_throwsNpe() {
+    assertThrows(NullPointerException.class, () -> Trimmer.trim(null));
+  }
+
+  // --- Non-deterministic rejection ---
+
+  @Test
+  void trim_epsilonTransitions_throwsIae() {
+    Automaton<String, Integer> nfa = Automaton.create();
+    State<String, Integer> q0 = nfa.newState();
+    State<String, Integer> q1 = nfa.newState("TOKEN");
+    q0.addEpsilonTransition(q1);
+    nfa.setInitialStateId(q0.getId());
+    assertThrows(IllegalArgumentException.class, () -> Trimmer.trim(nfa));
+  }
+
+  @Test
+  void trim_duplicateLabels_throwsIae() {
+    Automaton<String, Integer> nfa = Automaton.create();
+    State<String, Integer> q0 = nfa.newState();
+    State<String, Integer> q1 = nfa.newState("A");
+    State<String, Integer> q2 = nfa.newState("B");
+    q0.addTransition(97, q1);
+    q0.addTransition(97, q2);
+    nfa.setInitialStateId(q0.getId());
+    assertThrows(IllegalArgumentException.class, () -> Trimmer.trim(nfa));
   }
 
   // --- Reachability ---

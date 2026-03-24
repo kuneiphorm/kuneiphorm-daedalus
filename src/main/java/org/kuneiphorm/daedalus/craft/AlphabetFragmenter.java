@@ -21,12 +21,12 @@ import org.kuneiphorm.daedalus.range.IntRange;
  * every state. The algorithm:
  *
  * <ol>
- *   <li><b>Transition collection</b> — for each state and each of its transitions, a labeled range
+ *   <li><b>Transition collection</b> -- for each state and each of its transitions, a labeled range
  *       is created carrying the {@code (source state ID, target state ID)} pair as its label.
- *   <li><b>Partition</b> — {@link IntRange#partition(List)} normalizes all labeled ranges into
+ *   <li><b>Partition</b> -- {@link IntRange#partition(List)} normalizes all labeled ranges into
  *       non-overlapping sub-ranges, each carrying the union of {@code (source, target)} pairs that
  *       cover it. Fragment ID = index in the resulting list.
- *   <li><b>DFA remapping</b> — a fresh DFA is built with the same structure but transition labels
+ *   <li><b>DFA remapping</b> -- a fresh DFA is built with the same structure but transition labels
  *       replaced by fragment IDs. The classifier is a {@link BinarySearchClassifier} built from the
  *       partitioned ranges.
  * </ol>
@@ -49,7 +49,7 @@ public final class AlphabetFragmenter {
   public static <S> FragmentedAutomaton<S> fragment(Automaton<S, IntRange> dfa) {
     Objects.requireNonNull(dfa, "dfa");
 
-    // Phase 1: collect labeled ranges — each transition contributes a (source, target) pair.
+    // Phase 1: collect labeled ranges -- each transition contributes a (source, target) pair.
     List<Pair<IntRange, Set<Pair<Integer, Integer>>>> ranges = new ArrayList<>();
     for (State<S, IntRange> state : dfa.getStates()) {
       for (Transition<S, IntRange> t : state.getTransitions()) {

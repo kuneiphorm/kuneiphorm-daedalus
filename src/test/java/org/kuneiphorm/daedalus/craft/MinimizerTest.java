@@ -30,6 +30,37 @@ class MinimizerTest {
     return Minimizer.minimize(Determinizer.determinize(ExpressionConverter.build(expr, output)));
   }
 
+  // --- Null checks ---
+
+  @Test
+  void minimize_nullDfa_throwsNpe() {
+    assertThrows(NullPointerException.class, () -> Minimizer.minimize(null));
+  }
+
+  // --- Non-deterministic rejection ---
+
+  @Test
+  void minimize_epsilonTransitions_throwsIae() {
+    Automaton<String, Character> nfa = Automaton.create();
+    State<String, Character> q0 = nfa.newState();
+    State<String, Character> q1 = nfa.newState("TOKEN");
+    q0.addEpsilonTransition(q1);
+    nfa.setInitialStateId(q0.getId());
+    assertThrows(IllegalArgumentException.class, () -> Minimizer.minimize(nfa));
+  }
+
+  @Test
+  void minimize_duplicateLabels_throwsIae() {
+    Automaton<String, Character> nfa = Automaton.create();
+    State<String, Character> q0 = nfa.newState();
+    State<String, Character> q1 = nfa.newState("A");
+    State<String, Character> q2 = nfa.newState("B");
+    q0.addTransition('a', q1);
+    q0.addTransition('a', q2);
+    nfa.setInitialStateId(q0.getId());
+    assertThrows(IllegalArgumentException.class, () -> Minimizer.minimize(nfa));
+  }
+
   // --- State count reduction ---
 
   @Test

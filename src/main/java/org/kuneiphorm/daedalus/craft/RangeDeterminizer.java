@@ -25,7 +25,7 @@ import org.kuneiphorm.daedalus.range.IntRange;
  *       NFA target states.
  *   <li>A priority-based output resolver that picks the highest-priority output label when multiple
  *       accepting NFA states land in the same DFA kernel, using the supplied {@code labelPriority}
- *       map (output label → priority index; lower index = higher priority).
+ *       map (output label -> priority index; lower index = higher priority).
  * </ul>
  *
  * @author Florent Guille

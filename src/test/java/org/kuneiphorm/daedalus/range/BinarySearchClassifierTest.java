@@ -82,6 +82,18 @@ class BinarySearchClassifierTest {
   }
 
   @Test
+  void fragmentCount_empty_returnsZero() {
+    var c = new BinarySearchClassifier(List.of());
+    assertEquals(0, c.fragmentCount());
+  }
+
+  @Test
+  void fragmentCount_returnsNumberOfRanges() {
+    var c = new BinarySearchClassifier(List.of(new IntRange(1, 3), new IntRange(7, 9)));
+    assertEquals(2, c.fragmentCount());
+  }
+
+  @Test
   void getRanges_returnsRanges() {
     var ranges = List.of(new IntRange(1, 3));
     var c = new BinarySearchClassifier(ranges);

@@ -12,4 +12,16 @@ import org.kuneiphorm.daedalus.automaton.Automaton;
  * @author Florent Guille
  * @since 0.1.0
  */
-public record FragmentedAutomaton<S>(Automaton<S, Integer> dfa, Classifier classifier) {}
+public record FragmentedAutomaton<S>(Automaton<S, Integer> dfa, Classifier classifier) {
+
+  /**
+   * Returns the total number of alphabet fragments.
+   *
+   * <p>Convenience delegate to {@link Classifier#fragmentCount()}.
+   *
+   * @return the number of fragments
+   */
+  public int fragmentCount() {
+    return classifier.fragmentCount();
+  }
+}

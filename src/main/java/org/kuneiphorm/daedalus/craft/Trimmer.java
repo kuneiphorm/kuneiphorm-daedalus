@@ -47,6 +47,9 @@ public class Trimmer {
    */
   public static <S, L> Automaton<S, L> trim(Automaton<S, L> dfa) {
     Objects.requireNonNull(dfa, "dfa");
+    if (!dfa.isDeterministic()) {
+      throw new IllegalArgumentException("Input automaton is not deterministic.");
+    }
     State<S, L> initial = dfa.getInitial();
 
     // Phase 1: forward BFS -- collect reachable states.

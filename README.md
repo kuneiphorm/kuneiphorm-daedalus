@@ -38,7 +38,7 @@ The label type `L` is opaque to daedalus. Its meaning is defined by the consumin
 
 | Type | Description |
 |---|---|
-| `Automaton<S, L>` | Generic automaton (NFA or DFA). States created via `newState()`; initial state designated via `setInitialStateId(int)`. Sequential integer IDs. |
+| `Automaton<S, L>` | Generic automaton (NFA or DFA). States created via `newState()`; initial state designated via `setInitialStateId(int)`. Sequential integer IDs. Query methods: `stateCount()`, `getAcceptingStates()`, `isDeterministic()`. |
 | `State<S, L>` | Node with an integer ID, an optional output value `S`, and a list of outgoing transitions. Identity-based equality. |
 | `Transition<S, L>` | Record `(L label, State<S, L> target)`. A `null` label denotes an epsilon-transition. |
 
@@ -49,20 +49,20 @@ The label type `L` is opaque to daedalus. Its meaning is defined by the consumin
 | `ExpressionConverter` | Thompson's construction: `Expression<L>` -> NFA. Uses postfix unfolding and two stacks. |
 | `Determinizer` | Subset construction: NFA -> DFA. Pluggable `TransitionPartitioner` and `OutputResolver`. Built-in `byEquality()` for discrete labels. |
 | `RangeDeterminizer` | Range-aware determinization for `IntRange`-labeled NFAs. Delegates to `IntRange.partition` (sweep-line) and uses priority-based output resolution. |
-| `Minimizer` | Partition refinement: DFA -> minimized DFA. Splits blocks by transition signature until stable. |
-| `Trimmer` | Removes unreachable states (forward BFS) and useless states (backward BFS from accepting). Always preserves the initial state. |
+| `Minimizer` | Partition refinement: DFA -> minimized DFA. Splits blocks by transition signature until stable. Rejects non-DFA input via `Automaton.isDeterministic()`. |
+| `Trimmer` | Removes unreachable states (forward BFS) and useless states (backward BFS from accepting). Always preserves the initial state. Rejects non-DFA input via `Automaton.isDeterministic()`. |
 | `AlphabetFragmenter` | Alphabet fragmentation: `IntRange`-labeled DFA -> `FragmentedAutomaton`. Collects `(source, target)` pairs per transition, partitions via `IntRange.partition`, assigns fragment ID = index. |
 
 ### `range` : Integer range classifiers
 
 | Type | Description |
 |---|---|
-| `IntRange` | Record `(int lo, int hi)`, inclusive. Static algorithms: `normalize` (merge overlapping), `negate` (complement), `partition` (sweep-line splitting of labeled ranges). |
-| `Classifier` | `@FunctionalInterface`: `int classify(int c)`, returns `-1` for unknown inputs. |
+| `IntRange` | Record `(int lo, int hi)`, inclusive. Instance: `contains`, `overlaps`, `compareTo`. Static algorithms: `normalize` (merge overlapping), `negate` (complement), `partition` (sweep-line splitting of labeled ranges). |
+| `Classifier` | Interface: `int classify(int c)` (returns `-1` for unknown), `int fragmentCount()`. |
 | `LinearClassifier` | O(n) linear scan over a sorted `IntRange` list. |
 | `BinarySearchClassifier` | O(log n) binary search over a sorted `IntRange` list. |
 | `TableClassifier` | O(1) flat-array lookup. Suitable for bounded alphabets (e.g. ASCII). |
-| `FragmentedAutomaton<S>` | Record `(Automaton<S, Integer> dfa, Classifier classifier)`. Output of `AlphabetFragmenter`. |
+| `FragmentedAutomaton<S>` | Record `(Automaton<S, Integer> dfa, Classifier classifier)`. Output of `AlphabetFragmenter`. Convenience `fragmentCount()` delegate. |
 
 ## Pipelines
 
@@ -90,6 +90,8 @@ Expression<L> -> NFA (ExpressionConverter)
 - **`Pair<A, B>` replaces `Map.Entry`.** Used for transitions, labeled ranges, and partition results. Cleaner than `AbstractMap.SimpleEntry`.
 - **`IntRange.partition` is the sweep-line algorithm.** Mirrors the `LabeledRange.normalize` algorithm from the reference codebase. Operates on `List<Pair<IntRange, Set<L>>>`, producing non-overlapping sub-ranges with label-set unions.
 - **`AlphabetFragmenter` uses "fragmentation" lexicon.** Fragment ID = index in the partitioned list. No deduplication in the classifier -- deduplication is a runtime optimization for flat transition tables.
+- **`Minimizer` and `Trimmer` reject non-DFA input.** Both check `Automaton.isDeterministic()` at entry and throw `IllegalArgumentException` on epsilon transitions or duplicate labels.
+- **`Classifier` is not a functional interface.** It has two methods: `classify(int)` and `fragmentCount()`. All implementations derive the fragment count from their backing data.
 - **No code generation.** Daedalus only produces data structures. Code generation is handled by separate modules.
 - **No visitor pattern.** Java 21 sealed interfaces + pattern matching switch enforce exhaustive dispatch.
 

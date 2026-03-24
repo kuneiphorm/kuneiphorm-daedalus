@@ -56,6 +56,18 @@ class TableClassifierTest {
   }
 
   @Test
+  void fragmentCount_returnsNumberOfRanges() {
+    var c = new TableClassifier(List.of(new IntRange(0, 2), new IntRange(5, 7)), 10);
+    assertEquals(2, c.fragmentCount());
+  }
+
+  @Test
+  void fragmentCount_empty_returnsZero() {
+    var c = new TableClassifier(List.of(), 10);
+    assertEquals(0, c.fragmentCount());
+  }
+
+  @Test
   void constructor_rangeExceedsTableSize_throws() {
     var ex =
         assertThrows(

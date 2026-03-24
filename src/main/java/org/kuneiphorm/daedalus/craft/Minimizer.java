@@ -61,6 +61,9 @@ public class Minimizer {
    */
   public static <S, L> Automaton<S, L> minimize(Automaton<S, L> dfa) {
     Objects.requireNonNull(dfa, "dfa");
+    if (!dfa.isDeterministic()) {
+      throw new IllegalArgumentException("Input automaton is not deterministic.");
+    }
     // Phase 1: initial partition -- group states by output label.
     // We use a map keyed by output (null for non-accepting) to collect each group.
     Map<S, List<State<S, L>>> byOutput = new HashMap<>();
@@ -85,7 +88,7 @@ public class Minimizer {
       for (Set<State<S, L>> block : blocks) {
         // Attempt to split this block by partitioning its states according to their
         // transition signature: for each label, which block does the target belong to?
-        // States with the same signature stay together; different signatures → split.
+        // States with the same signature stay together; different signatures -> split.
         Map<Map<L, Integer>, Set<State<S, L>>> bySig = new HashMap<>();
         for (State<S, L> state : block) {
           HashMap<L, Integer> sig = new HashMap<>();

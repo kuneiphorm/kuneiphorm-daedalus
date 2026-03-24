@@ -36,6 +36,29 @@ class DeterminizerTest {
     return Determinizer.determinize(ExpressionConverter.build(expr, output));
   }
 
+  // --- Null checks ---
+
+  @Test
+  void determinize_nullNfa_throwsNpe() {
+    assertThrows(NullPointerException.class, () -> Determinizer.determinize(null));
+  }
+
+  @Test
+  void determinize_nullPartitioner_throwsNpe() {
+    var nfa = ExpressionConverter.build(Expression.unit('a'), "TOKEN");
+    assertThrows(
+        NullPointerException.class,
+        () -> Determinizer.determinize(nfa, null, outputs -> outputs.iterator().next()));
+  }
+
+  @Test
+  void determinize_nullOutputResolver_throwsNpe() {
+    var nfa = ExpressionConverter.build(Expression.unit('a'), "TOKEN");
+    assertThrows(
+        NullPointerException.class,
+        () -> Determinizer.determinize(nfa, Determinizer.byEquality(), null));
+  }
+
   // --- Structural ---
 
   @Test
