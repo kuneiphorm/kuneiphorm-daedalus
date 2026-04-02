@@ -1,8 +1,12 @@
 package org.kuneiphorm.daedalus.automaton;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -141,6 +145,34 @@ public class Automaton<S, L> {
         }
       }
     }
+    return true;
+  }
+
+  /**
+   * Returns {@code true} if the accepted language is empty -- i.e., no accepting state is reachable
+   * from the initial state.
+   *
+   * @return whether the automaton accepts no strings
+   */
+  public boolean isEmpty() {
+    Set<Integer> visited = new HashSet<>();
+    Deque<Integer> worklist = new ArrayDeque<>();
+    visited.add(getInitial().getId());
+    worklist.add(getInitial().getId());
+
+    while (!worklist.isEmpty()) {
+      int stateId = worklist.poll();
+      State<S, L> state = states.get(stateId);
+      if (state.isAccepting()) {
+        return false;
+      }
+      for (Transition<S, L> transition : state.getTransitions()) {
+        if (visited.add(transition.target().getId())) {
+          worklist.add(transition.target().getId());
+        }
+      }
+    }
+
     return true;
   }
 

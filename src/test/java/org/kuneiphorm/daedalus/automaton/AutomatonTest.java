@@ -205,4 +205,53 @@ class AutomatonTest {
     var s = a.toString();
     assertTrue(s.contains("-42-> q1[T]"));
   }
+
+  // --- isEmpty ---
+
+  @Test
+  void isEmpty_noAcceptingStates_returnsTrue() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    a.newState();
+    a.getStates().get(0).addTransition(1, a.getStates().get(1));
+    a.setInitialStateId(0);
+    assertTrue(a.isEmpty());
+  }
+
+  @Test
+  void isEmpty_initialIsAccepting_returnsFalse() {
+    var a = Automaton.<String, Integer>create();
+    a.newState("X");
+    a.setInitialStateId(0);
+    assertFalse(a.isEmpty());
+  }
+
+  @Test
+  void isEmpty_reachableAccepting_returnsFalse() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState("X");
+    q0.addTransition(1, q1);
+    a.setInitialStateId(0);
+    assertFalse(a.isEmpty());
+  }
+
+  @Test
+  void isEmpty_unreachableAccepting_returnsTrue() {
+    var a = Automaton.<String, Integer>create();
+    a.newState(); // q0 (initial)
+    a.newState("X"); // q1 (accepting but unreachable)
+    a.setInitialStateId(0);
+    assertTrue(a.isEmpty());
+  }
+
+  @Test
+  void isEmpty_acceptingViaEpsilon_returnsFalse() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState("X");
+    q0.addEpsilonTransition(q1);
+    a.setInitialStateId(0);
+    assertFalse(a.isEmpty());
+  }
 }
