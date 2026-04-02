@@ -254,4 +254,80 @@ class AutomatonTest {
     a.setInitialStateId(0);
     assertFalse(a.isEmpty());
   }
+
+  // --- mapOutputs ---
+
+  @Test
+  void mapOutputs_transformsAcceptingStates() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState("hello");
+    q0.addTransition(1, q1);
+    a.setInitialStateId(0);
+
+    Automaton<Integer, Integer> mapped = a.mapOutputs(String::length);
+
+    assertEquals(2, mapped.stateCount());
+    assertFalse(mapped.getInitial().isAccepting());
+    assertTrue(mapped.getStates().get(1).isAccepting());
+    assertEquals(5, mapped.getStates().get(1).getOutput());
+  }
+
+  @Test
+  void mapOutputs_preservesNonAccepting() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    a.newState();
+    a.setInitialStateId(0);
+
+    Automaton<Integer, Integer> mapped = a.mapOutputs(String::length);
+
+    assertFalse(mapped.getStates().get(0).isAccepting());
+    assertFalse(mapped.getStates().get(1).isAccepting());
+  }
+
+  @Test
+  void mapOutputs_preservesTransitions() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState("X");
+    q0.addTransition(42, q1);
+    q1.addTransition(43, q0);
+    a.setInitialStateId(0);
+
+    Automaton<Integer, Integer> mapped = a.mapOutputs(String::length);
+
+    assertEquals(1, mapped.getStates().get(0).getTransitions().size());
+    assertEquals(42, mapped.getStates().get(0).getTransitions().get(0).label());
+    assertEquals(1, mapped.getStates().get(0).getTransitions().get(0).target().getId());
+
+    assertEquals(1, mapped.getStates().get(1).getTransitions().size());
+    assertEquals(43, mapped.getStates().get(1).getTransitions().get(0).label());
+    assertEquals(0, mapped.getStates().get(1).getTransitions().get(0).target().getId());
+  }
+
+  @Test
+  void mapOutputs_preservesEpsilonTransitions() {
+    var a = Automaton.<String, Integer>create();
+    var q0 = a.newState();
+    var q1 = a.newState("X");
+    q0.addEpsilonTransition(q1);
+    a.setInitialStateId(0);
+
+    Automaton<Integer, Integer> mapped = a.mapOutputs(String::length);
+
+    assertTrue(mapped.getStates().get(0).getTransitions().get(0).isEpsilon());
+  }
+
+  @Test
+  void mapOutputs_preservesInitialState() {
+    var a = Automaton.<String, Integer>create();
+    a.newState();
+    a.newState("X");
+    a.setInitialStateId(1);
+
+    Automaton<Integer, Integer> mapped = a.mapOutputs(String::length);
+
+    assertEquals(1, mapped.getInitial().getId());
+  }
 }

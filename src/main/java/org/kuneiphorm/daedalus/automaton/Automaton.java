@@ -7,6 +7,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -174,6 +175,38 @@ public class Automaton<S, L> {
     }
 
     return true;
+  }
+
+  /**
+   * Returns a new automaton with the same states and transitions but with output labels transformed
+   * by the given function. A {@code null} output (non-accepting state) is not passed to the
+   * function and remains {@code null}.
+   *
+   * @param <T> the new output label type
+   * @param mapper the function to apply to each non-null output
+   * @return a fresh {@link Automaton} with mapped outputs
+   */
+  public <T> Automaton<T, L> mapOutputs(Function<S, T> mapper) {
+    Automaton<T, L> result = Automaton.create();
+
+    for (State<S, L> state : states) {
+      if (state.isAccepting()) {
+        result.newState(mapper.apply(state.getOutput()));
+      } else {
+        result.newState();
+      }
+    }
+
+    for (State<S, L> state : states) {
+      State<T, L> resultState = result.getStates().get(state.getId());
+      for (Transition<S, L> transition : state.getTransitions()) {
+        State<T, L> target = result.getStates().get(transition.target().getId());
+        resultState.addTransition(transition.label(), target);
+      }
+    }
+
+    result.setInitialStateId(getInitial().getId());
+    return result;
   }
 
   /**
